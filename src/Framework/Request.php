@@ -10,7 +10,7 @@ class Request
 
     private function __construct(){}
 
-    public static function initialize(): self{
+    public static function initialize(): Request{
 
         $request = new static();
         $request->path = $_SERVER['PHP_SELF'];

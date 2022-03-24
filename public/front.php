@@ -1,27 +1,31 @@
 <?php
-require_once dirname(__DIR__).'/vendor/autoload.php';
 
-use App\framework\Request;
-use App\framework\Response;
+namespace App\Front;
 
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+use App\Framework\ControllerResolver;
+use App\Framework\Request;
+use App\Framework\Response;
+use App\Framework\Router;
+use App\Framework\UrlMatcher;
+use PHPUnit\Framework\Constraint\Constraint;
 
 $request = Request::initialize();
-$routes = include __DIR__.'/../src/app.php';
 
-$context = new Routing\RequestContext();
-$context->fromRequest($request);
-$matcher = new Routing\Matcher\UrlMatcher($routes, $context);
+$routesConfig = require '../config/routes.php';
+$router = new Router($routesConfig);
+$urlMatcher = new UrlMatcher($router);
 
-try {
-    extract($matcher->match($request->getPathInfo()), EXTR_SKIP);
-    ob_start();
-    include sprintf(__DIR__.'/../src/pages/%s.php', $_route);
+$route = $urlMatcher->match($request->getPath());
+//$arguments = $this->argumentResolver->getArguments($request, $controller);
 
-    $response = new Response(ob_get_clean());
-} catch (Routing\Exception\ResourceNotFoundException $exception) {
-    $response = new Response('Not Found', 404);
-} catch (Exception $exception) {
-    $response = new Response('An error occurred', 500);
+if ($route === null) {
+    $response = new Response('Not found', 404);
+    $response->send();
 }
+
+$response = ControllerResolver::execute($route, $request);
+
 
 $response->send();
