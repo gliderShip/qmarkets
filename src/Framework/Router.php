@@ -16,7 +16,7 @@ class Router
         foreach ($routesArray as $routeName => $details) {
             $this->checkRouteDefinition($routeName, $details);
 
-            $route = new Route($routeName, $details['url'], $details['controller'], $details['action']);
+            $route = new Route($routeName, $details['url'], $details['methods'], $details['controller'], $details['action']);
             $this->routeCollection->add($route);
         }
     }
@@ -40,6 +40,9 @@ class Router
         }
         if (!isset($routeDefinition['action'])) {
             throw new \Exception('Action not set for route: ' . $routeName);
+        }
+        if (!isset($routeDefinition['methods'])) {
+            throw new \Exception('Method not set for route: ' . $routeName);
         }
     }
 

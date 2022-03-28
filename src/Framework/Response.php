@@ -16,6 +16,7 @@ class Response
         $this->version = $_SERVER['SERVER_PROTOCOL'];
         $this->content = $content;
         $this->statusCode = $statusCode;
+        $this->statusText = self::$statusTexts[$statusCode] ?? 'unknown status';
         $this->headers = $headers;
         $this->cookies = $cookies;
     }
@@ -30,7 +31,7 @@ class Response
 
     public function sendContent(): Response
     {
-        echo $this->content;
+        echo $this->content ?? '';
 
         return $this;
     }
@@ -48,13 +49,10 @@ class Response
         foreach ($this->cookies as $cookie) {
             header('Set-Cookie: ' . $cookie, false, $this->statusCode);
         }
-
         // status
-        header(sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText), true, $this->statusCode);
+        header(sprintf('%s %s %s', $this->version, $this->statusCode, $this->statusText), true, $this->statusCode);
 
         return $this;
-
-
     }
 
     public function isInvalid(): bool

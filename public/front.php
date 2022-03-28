@@ -9,23 +9,22 @@ use App\Framework\Request;
 use App\Framework\Response;
 use App\Framework\Router;
 use App\Framework\UrlMatcher;
-use PHPUnit\Framework\Constraint\Constraint;
 
 $request = Request::initialize();
 
-$routesConfig = require '../config/routes.php';
+$routesConfig = require 'config/routes.php';
 $router = new Router($routesConfig);
 $urlMatcher = new UrlMatcher($router);
 
-$route = $urlMatcher->match($request->getPath());
+$urlPath = $request->getPath();
+$method = $request->getMethod();
+$route = $urlMatcher->match($urlPath, $method);
+
 //$arguments = $this->argumentResolver->getArguments($request, $controller);
-
 if ($route === null) {
-    $response = new Response('Not found', 404);
-    $response->send();
+    $response = new Response("Url ->:$urlPath was not found!", 404);
+} else{
+    $response = ControllerResolver::execute($route, $request);
 }
-
-$response = ControllerResolver::execute($route, $request);
-
 
 $response->send();

@@ -2,18 +2,21 @@
 
 return [
     'home' => [
-        'url' => '/hello',
+        'url' => '/',
         'controller' => 'HomeController',
         'action' => 'index',
+        'methods' => ['GET'],
     ],
-    'posts' => [
-        'url' => '/hello',
-        'controller' => 'PostsController',
-        'action' => 'index',
+    'customers_list' => [
+        'url' => '/api/customers',
+        'controller' => 'CustomerController',
+        'action' => 'list',
+        'methods' => ['GET'],
     ],
-    'posts.show' => [
-        'url' => '/hello',
-        'controller' => 'PostsController',
-        'action' => 'show',
+    'customers_add' => [
+        'url' => '/api/customers',
+        'controller' => 'CustomerController',
+        'action' => 'add',
+        'methods' => ['POST'],
     ]
 ];

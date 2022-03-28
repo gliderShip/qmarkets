@@ -8,14 +8,17 @@ class Route
 
     private string $url;
 
+    private array $methods;
+
     private string $controller;
 
     private string $action;
 
-    public function __construct(string $name, string $url, string $controller, string $action)
+    public function __construct(string $name, string $url, array $methods, string $controller, string $action)
     {
         $this->name = $name;
         $this->url = $url;
+        $this->methods = $methods;
         $this->controller = $controller;
         $this->action = $action;
 
@@ -40,6 +43,16 @@ class Route
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getMethods(): array
+    {
+        return $this->methods;
+    }
+
+    public function setMethods(array $methods): void
+    {
+        $this->methods = $methods;
     }
 
     public function getController(): string

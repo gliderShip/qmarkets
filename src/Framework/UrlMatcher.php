@@ -17,9 +17,9 @@ class UrlMatcher
         $this->routeCollection = $this->router->getRouteCollection();
     }
 
-    public function match(string $path): ?Route
+    public function match(string $path, string $method): ?Route
     {
-        $route = $this->routeCollection->getRoute($path);
+        $route = $this->routeCollection->getRoute($path, $method);
         return $route;
     }
 }

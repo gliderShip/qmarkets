@@ -4,11 +4,15 @@ namespace App\Framework\Routing;
 
 class RouteCollection
 {
+    /** @var Route[] */
     private array $routes = [];
 
     public function add(Route $route)
     {
-        $this->routes[$route->getUrl()] = $route;
+        $methods = $route->getMethods();
+        foreach ($methods as $method) {
+            $this->routes[$route->getUrl()][$method] = $route;
+        }
     }
 
     /**
@@ -19,13 +23,9 @@ class RouteCollection
         return $this->routes;
     }
 
-    public function getRoute(string $url): ?Route
+    public function getRoute(string $url, string $method): ?Route
     {
-        if (isset($this->routes[$url])) {
-            return $this->routes[$url];
-        }
-
-        return null;
+        return $this->routes[$url][$method] ?? null;
     }
 
 }
