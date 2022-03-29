@@ -13,10 +13,22 @@ return [
         'action' => 'list',
         'methods' => ['GET'],
     ],
-    'customers_add' => [
+    'customers_create' => [
         'url' => '/api/customers',
         'controller' => 'CustomerController',
-        'action' => 'add',
+        'action' => 'create',
         'methods' => ['POST'],
-    ]
+    ],
+    'accounts_list' => [
+        'url' => '/api/accounts',
+        'controller' => 'AccountController',
+        'action' => 'list',
+        'methods' => ['GET'],
+    ],
+    'account_create' => [
+        'url' => '/api/accounts',
+        'controller' => 'AccountController',
+        'action' => 'create',
+        'methods' => ['POST'],
+    ],
 ];

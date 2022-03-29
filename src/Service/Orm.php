@@ -16,43 +16,71 @@ class Orm
     {
         $this->pdo = new PDO(DbConfig::DATABASE_DSN);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+        $this->pdo->exec( 'PRAGMA foreign_keys = ON;' );
+
     }
 
-    public function insert(EntityInterface $object): EntityInterface
+    public function getPdo(): PDO
     {
-        $reflection = new \ReflectionClass($object);
-        $tableName = $reflection->getShortName();
+        return $this->pdo;
+    }
 
-        $data = $this->getData($reflection, $object);
+    public function insert(EntityInterface $entity): EntityInterface
+    {
+        $reflection = new \ReflectionClass($entity);
 
-        $this->createTableIfNotExist($tableName, $data);
+        $tableName = $this->getTableName($entity);
+        $data = $this->getData($reflection, $entity);
 
-        $columnsStr = implode(', ', array_column($data, 'column'));
-        $valuesStr = implode(', ', array_column($data, 'value'));
+        $columns = array_column($data, 'column');
+        $values = array_column($data, 'value');
 
-        $sql = "INSERT OR REPLACE INTO $tableName ($columnsStr) VALUES ($valuesStr)";
-        var_dump($sql);
-//        $stmt = $this->pdo->prepare($sql);
-        $result = $this->pdo->exec($sql);
+        $columnsStr = implode(', ', $columns);
+        $parametersStr = ":" . implode(", :", $columns);
+
+        $sql = "INSERT INTO $tableName ($columnsStr) VALUES ($parametersStr)";
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($columns as $key => $column) {
+            $stmt->bindValue(":$column", $values[$key]);
+        }
+
+        $result = $stmt->execute();
         if ($result === false) {
             throw new \Exception('Error saving object ->' . print_r($this->pdo->errorInfo(), true));
         }
 
+        $entity->setId($this->pdo->lastInsertId());
+        return $entity;
+    }
 
-        $object->setId($this->pdo->lastInsertId());
-        return $object;
+    public function selectAll(string $entityClass, int $limit = 0): array
+    {
+        $tableName = $this->getTableName($entityClass);
+
+        $sql = "SELECT * FROM $tableName";
+        if ($limit > 0) {
+            $sql .= " LIMIT $limit";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $result =  $stmt->execute();
+
+        if ($result === false) {
+            throw new \Exception('Error fetching data ->' . print_r($this->pdo->errorInfo(), true));
+        }
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     private function getData(ReflectionClass $reflection, EntityInterface $object): array
     {
-        $properties = $reflection->getProperties();
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
         $data = [];
         foreach ($properties as $property) {
             $property->setAccessible(true);
             $data[] = [
                 'column' => $property->getName(),
                 'value' => $property->getValue($object),
-                'type' => $this->getDbType($object, $property)
             ];
             $property->setAccessible(false);
         }
@@ -60,38 +88,28 @@ class Orm
         return $data;
     }
 
-    private function createTableIfNotExist(string $tableName, array $data)
+    private function getTableName($entityOrClassName): string
     {
-        $columns = '';
-        foreach ($data as $key => $property) {
-            if ($key > 0) {
-                $columns .= ', ';
-            }
-            $columns .= $property['column'] . ' ' . $property['type'];
-        }
+        $reflection = new \ReflectionClass($entityOrClassName);
+        return strtolower($reflection->getShortName());
+    }
 
-        $sql = "CREATE TABLE IF NOT EXISTS $tableName ($columns)";;
-        var_dump($sql);
-        var_dump('ffffffffffff');
-        $result = $this->pdo->exec($sql);
+    public function findOneBy(string $entityClass, string $column, $value): ?EntityInterface
+    {
+        $tableName = $this->getTableName($entityClass);
+
+        $sql = "SELECT * FROM $tableName WHERE $column = :value";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':value', $value);
+        $result = $stmt->execute();
+
         if ($result === false) {
-            throw new \Exception('Error saving object ->' . print_r($this->pdo->errorInfo(), true));
+            throw new \Exception('Error fetching data ->' . print_r($this->pdo->errorInfo(), true));
         }
-    }
 
-    private function getDbType(EntityInterface $object, ReflectionProperty $property): string
-    {
-        $type = $property->getType()->getName();
-        switch ($type) {
-            case 'int':
-                return 'INTEGER';
-            case 'string':
-                return 'TEXT';
-            case 'bool':
-                return 'INTEGER';
-            default:
-                throw new \Exception('Unknown type: ' . $type);
-        }
-    }
+        $entity = $stmt->fetchObject($entityClass);
 
+        return $entity === false ? null : $entity;
+    }
 }

@@ -23,17 +23,22 @@ class CustomerController
         return new JsonResponse($customers);
     }
 
-    public function add(Request $request): Response
+    public function create(Request $request): Response
     {
         $customerRequest = $request->getJsonData();
 
+        if($customerRequest === null) {
+            return new JsonResponse(['error' => 'Invalid request'], 400);
+        }
+
         $customerEntity = $this->customerManager->denormalize($customerRequest);
-        if (!empty($customerEntity->getInvalidProperties())) {
-            return new JsonResponse($customerEntity->getInvalidProperties(), 400);
+
+        $errors = $customerEntity->getInvalidProperties();
+        if (!empty($errors)) {
+            return new JsonResponse($errors, 400);
         }
 
         $customerEntity = $this->customerManager->createCustomer($customerEntity);
-        die(var_dump($customerEntity));
         $customerResponse = $this->customerManager->normalize($customerEntity);
         return new JsonResponse($customerResponse);
     }

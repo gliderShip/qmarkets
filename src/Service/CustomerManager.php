@@ -9,14 +9,24 @@ use App\Model\EntityManagerInterface;
 
 class CustomerManager extends AbstractObjectManager implements EntityManagerInterface
 {
-    public function getEntityClass(): string
-    {
-        return Customer::class;
-    }
-
     public function getCustomers(): array
     {
         return $this->getRepository()->findAll();
+    }
+
+    public function createCustomer(Customer $customer): Customer
+    {
+        return $this->orm->insert($customer);
+    }
+
+    public function getCustomer(string $id): ?Customer
+    {
+        return $this->getRepository()->findById($id);
+    }
+
+    public function getEntityClass(): string
+    {
+        return Customer::class;
     }
 
     public function getRepository(): CustomerRepository
@@ -32,10 +42,5 @@ class CustomerManager extends AbstractObjectManager implements EntityManagerInte
     public function normalize(EntityInterface $entity, ?array $context = []): array
     {
         return $this->toArray($entity, $context);
-    }
-
-    public function createCustomer(Customer $customer): Customer
-    {
-        return $this->orm->insert($customer);
     }
 }

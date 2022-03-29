@@ -3,10 +3,12 @@
 namespace App\Model;
 
 use App\Service\Orm;
+use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
+use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\DeserializationContext;
 
 class AbstractObjectManager
 {
@@ -16,7 +18,13 @@ class AbstractObjectManager
     public function __construct()
     {
         $this->orm = new Orm();
-        $this->serializer = SerializerBuilder::create()->build();
+        $this->serializer = SerializerBuilder::create()
+            ->setPropertyNamingStrategy(
+                new SerializedNameAnnotationStrategy(
+                    new IdenticalPropertyNamingStrategy()
+                )
+            )
+            ->build();
     }
 
     public function getSerializer(): Serializer
@@ -37,7 +45,7 @@ class AbstractObjectManager
     protected function toArray(EntityInterface $entity, array $context = []): array
     {
         $serializationContext = null;
-        if(!empty($context)) {
+        if (!empty($context)) {
             $serializationContext = SerializationContext::create()->setGroups($context);
         }
 

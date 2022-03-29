@@ -2,13 +2,10 @@
 
 namespace App\Service;
 
-use App\Entity\Customer;
 use App\Model\EntityInterface;
-use App\Model\ObjectManagerInterface;
-use App\Service\Orm;
 use App\Model\RepositoryInterface;
 
-class CustomerRepository implements RepositoryInterface
+class AccountRepository implements RepositoryInterface
 {
     private Orm $storage;
     private string $entityClass;
@@ -21,12 +18,12 @@ class CustomerRepository implements RepositoryInterface
 
     public function findAll(): array
     {
-        return ['customer1', 'customer2'];
+        return $this->getStorage()->selectAll($this->entityClass);
     }
 
     public function findById(string $id): ?EntityInterface
     {
-        return $this->getStorage()->findOneBy($this->entityClass, 'id', $id);
+        // TODO: Implement find() method.
     }
 
     public function getEntityClass(): string

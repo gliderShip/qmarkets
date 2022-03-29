@@ -8,7 +8,7 @@ class Customer implements EntityInterface
 {
     private ?string $id = null;
 
-    private string $name;
+    protected string $name;
 
     public function getId(): string
     {
@@ -39,9 +39,12 @@ class Customer implements EntityInterface
         $invalidProperties = [];
 
         if (empty($this->name)) {
-            $invalidProperties['errors'][]['property'] = 'name';
-            $invalidProperties['errors'][]['value'] = $this->name ?? null;
-            $invalidProperties['errors'][]['message'] = 'Name is required';
+            $invalidProperties['error'][] = [
+                'property' => 'name',
+                'invalidValue' => $this->name ?? null,
+                'message' => 'Name is required',
+
+            ];
         }
 
         return $invalidProperties;

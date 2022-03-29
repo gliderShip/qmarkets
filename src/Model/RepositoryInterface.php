@@ -10,7 +10,7 @@ interface RepositoryInterface
      */
     public function findAll(): array;
 
-    public function find(int $id): ?EntityInterface;
+    public function findById(string $id): ?EntityInterface;
 
     public function getEntityClass(): string;
 
