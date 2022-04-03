@@ -18,11 +18,11 @@ $urlMatcher = new UrlMatcher($router);
 
 $urlPath = $request->getPath();
 $method = $request->getMethod();
-$route = $urlMatcher->match($urlPath, $method);
+$route = $urlMatcher->match($request, $method);
 
 //$arguments = $this->argumentResolver->getArguments($request, $controller);
 if ($route === null) {
-    $response = new Response("Url ->:$urlPath was not found!", 404);
+    $response = new Response("Url ->:$urlPath was not found!. Method -> $method", 404);
 } else{
     $response = ControllerResolver::execute($route, $request);
 }

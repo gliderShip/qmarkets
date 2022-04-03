@@ -2,19 +2,16 @@
 
 namespace App\Model;
 
+use App\Service\Orm;
+
 interface RepositoryInterface
 {
-    /**
-     * @param int $id
-     * @return EntityInterface[]
-     */
     public function findAll(): array;
 
-    public function findById(string $id): ?EntityInterface;
+    public function findAllBy(array $criteria, string $criteriaType): array;
+
+    public function findByPrimaryId(string $id): ?EntityInterface;
 
     public function getEntityClass(): string;
 
-    public function save(EntityInterface $object);
-
-    public function delete(EntityInterface $object);
 }

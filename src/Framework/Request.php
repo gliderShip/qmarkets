@@ -8,6 +8,7 @@ class Request
     protected string $method;
     protected array $queryParams = [];
     protected array $requestParams = [];
+    private string $dynamicParameter;
     protected string $body;
     protected string $contentType;
 
@@ -90,6 +91,16 @@ class Request
     public function getContentType(): string
     {
         return $this->contentType;
+    }
+
+    public function getDynamicParameter(): string
+    {
+        return $this->dynamicParameter;
+    }
+
+    public function setDynamicParameter(string $dynamicParameter): void
+    {
+        $this->dynamicParameter = $dynamicParameter;
     }
 
 

@@ -2,11 +2,10 @@
 
 namespace App\Service;
 
-use App\Model\EntityInterface;
 use App\Model\RepositoryInterface;
 use App\Model\RepositoryTrait;
 
-class AccountRepository implements RepositoryInterface
+class TransactionRepository implements RepositoryInterface
 {
     use RepositoryTrait;
 
@@ -18,7 +17,6 @@ class AccountRepository implements RepositoryInterface
         $this->storage = $storage;
         $this->entityClass = $entityClass;
     }
-
 
 
 }

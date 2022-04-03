@@ -6,7 +6,7 @@ class Route
 {
     private string $name;
 
-    private string $url;
+    private string $path;
 
     private array $methods;
 
@@ -14,13 +14,16 @@ class Route
 
     private string $action;
 
+    private ?string $parameter;
+
     public function __construct(string $name, string $url, array $methods, string $controller, string $action)
     {
         $this->name = $name;
-        $this->url = $url;
+        $this->path = $url;
         $this->methods = $methods;
         $this->controller = $controller;
         $this->action = $action;
+
 
     }
 
@@ -35,14 +38,14 @@ class Route
         $this->name = $name;
     }
 
-    public function getUrl(): string
+    public function getPath(): string
     {
-        return $this->url;
+        return $this->path;
     }
 
-    public function setUrl(string $url): void
+    public function setPath(string $path): void
     {
-        $this->url = $url;
+        $this->path = $path;
     }
 
     public function getMethods(): array
@@ -75,6 +78,14 @@ class Route
         $this->action = $action;
     }
 
+    public function getParameter(): ?string
+    {
+        return $this->parameter;
+    }
 
+    public function setParameter(?string $parameter = null): void
+    {
+        $this->parameter = $parameter;
+    }
 
 }

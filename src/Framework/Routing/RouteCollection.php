@@ -11,7 +11,7 @@ class RouteCollection
     {
         $methods = $route->getMethods();
         foreach ($methods as $method) {
-            $this->routes[$route->getUrl()][$method] = $route;
+            $this->routes[$route->getPath()][$method] = $route;
         }
     }
 

@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Account;
 use App\Exceptions\ClientException;
 use App\Model\AbstractObjectManager;
+use App\Model\EntityInterface;
 use App\Model\EntityManagerInterface;
 
 class AccountManager extends AbstractObjectManager implements EntityManagerInterface
@@ -22,35 +23,25 @@ class AccountManager extends AbstractObjectManager implements EntityManagerInter
         return Account::class;
     }
 
-    public function getAccounts(): array
+    public function getRepository(): TransactionRepository
     {
-        return $this->getRepository()->findAll();
+        return new TransactionRepository($this->getOrm(), $this->getEntityClass());
     }
 
-    public function getRepository(): AccountRepository
-    {
-        return new AccountRepository($this->getOrm(), $this->getEntityClass());
-    }
-
-    public function denormalize(array $data, ?array $context = []): ?Account
-    {
-        return $this->denormalizeData($data, Account::class, $context);
-    }
-
-    public function normalize(Account $entity, ?array $context = []): array
-    {
-        return $this->toArray($entity, $context);
-    }
-
-    public function createAccount(Account $account): Account
+    public function createEntity(EntityInterface $account): Account
     {
         $customerId = $account->getCustomerId();
-        $customer = $this->customerManager->getCustomer($customerId);
+        $customer = $this->customerManager->getEntity($customerId);
 
         if (!$customer) {
             throw new ClientException("Customer ->:$customerId not found", 404);
         }
 
-        return $this->orm->insert($account);
+        return parent::createEntity($account);
+    }
+
+    public function updateEntity(Account $entity): EntityInterface
+    {
+        return $this->getOrm()->update($entity, 'id', $entity->getId());
     }
 }

@@ -16,9 +16,26 @@ class CustomerController
         $this->customerManager = new CustomerManager();
     }
 
+    public function get(Request $request)
+    {
+        $customerId = $request->getDynamicParameter();
+
+        if (null === $customerId) {
+            return new JsonResponse(['error' => 'Customer id is missing'], 400);
+        }
+
+        $customer = $this->customerManager->getEntity($customerId);
+        if (null === $customer) {
+            return new JsonResponse(['error' => 'Customer not found'], 404);
+        }
+
+        $customerResponse = $this->customerManager->normalize($customer);
+        return new JsonResponse($customerResponse);
+    }
+
     public function list()
     {
-        $customers = $this->customerManager->getCustomers();
+        $customers = $this->customerManager->getAll();
 
         return new JsonResponse($customers);
     }
@@ -27,7 +44,7 @@ class CustomerController
     {
         $customerRequest = $request->getJsonData();
 
-        if($customerRequest === null) {
+        if ($customerRequest === null) {
             return new JsonResponse(['error' => 'Invalid request'], 400);
         }
 
@@ -38,8 +55,24 @@ class CustomerController
             return new JsonResponse($errors, 400);
         }
 
-        $customerEntity = $this->customerManager->createCustomer($customerEntity);
+        $customerEntity = $this->customerManager->createEntity($customerEntity);
         $customerResponse = $this->customerManager->normalize($customerEntity);
         return new JsonResponse($customerResponse);
+    }
+
+    public function delete(Request $request)
+    {
+        $customerId = $request->getDynamicParameter();
+
+        if (null === $customerId) {
+            return new JsonResponse(['error' => 'Customer id is missing'], 400);
+        }
+
+        $deletedRecords = $this->customerManager->deleteEntity('id', $customerId);
+        if ($deletedRecords == 0) {
+            return new JsonResponse(['error' => "Customer ->:$customerId not found"], 404);
+        }
+
+        return new JsonResponse(null, 204);
     }
 }

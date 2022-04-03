@@ -2,53 +2,21 @@
 
 namespace App\Service;
 
-use App\Entity\Customer;
-use App\Model\EntityInterface;
-use App\Model\ObjectManagerInterface;
-use App\Service\Orm;
 use App\Model\RepositoryInterface;
+use App\Model\RepositoryTrait;
 
 class CustomerRepository implements RepositoryInterface
 {
+    use RepositoryTrait;
+
     private Orm $storage;
     private string $entityClass;
 
-    public function __construct(Orm $storage, string $className)
+    public function __construct(Orm $storage, string $entityClass)
     {
         $this->storage = $storage;
-        $this->entityClass = $className;
+        $this->entityClass = $entityClass;
     }
-
-    public function findAll(): array
-    {
-        return ['customer1', 'customer2'];
-    }
-
-    public function findById(string $id): ?EntityInterface
-    {
-        return $this->getStorage()->findOneBy($this->entityClass, 'id', $id);
-    }
-
-    public function getEntityClass(): string
-    {
-        return $this->entityClass;
-    }
-
-    public function save(EntityInterface $object)
-    {
-        // TODO: Implement save() method.
-    }
-
-    public function delete(EntityInterface $object)
-    {
-        // TODO: Implement delete() method.
-    }
-
-    public function getStorage(): Orm
-    {
-        return $this->storage;
-    }
-
 
 }
 

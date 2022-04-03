@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Entity\Account;
 use App\Service\Orm;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
@@ -10,7 +11,7 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
 
-class AbstractObjectManager
+abstract class AbstractObjectManager
 {
     protected Orm $orm;
     protected Serializer $serializer;
@@ -25,6 +26,20 @@ class AbstractObjectManager
                 )
             )
             ->build();
+    }
+
+    public abstract function getEntityClass(): string;
+
+    public abstract function getRepository(): RepositoryInterface;
+
+    public function getOrm(): Orm
+    {
+        return new Orm();
+    }
+
+    public function deleteEntity(string $identifier, string $value): int
+    {
+        return $this->orm->delete($this->getEntityClass(), $identifier, $value);
     }
 
     public function getSerializer(): Serializer
@@ -52,8 +67,28 @@ class AbstractObjectManager
         return $this->serializer->toArray($entity, $serializationContext);
     }
 
-    public function getOrm(): Orm
+    public function denormalize(array $data, ?array $context = []): ?EntityInterface
     {
-        return new Orm();
+        return $this->denormalizeData($data, $this->getEntityClass(), $context);
+    }
+
+    public function normalize(EntityInterface $entity, ?array $context = []): array
+    {
+        return $this->toArray($entity, $context);
+    }
+
+    public function getAll(): array
+    {
+        return $this->getRepository()->findAll();
+    }
+
+    public function getEntity(string $id): ?EntityInterface
+    {
+        return $this->getRepository()->findByPrimaryId($id);
+    }
+
+    public function createEntity(EntityInterface $entity): EntityInterface
+    {
+        return $this->orm->insert($entity);
     }
 }
