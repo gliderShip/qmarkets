@@ -12,5 +12,6 @@
 
 ## Api
 Please find attached inside the **Documentation** folder an export of Postman requests.
+Routes are defined inside *config/routes.php*
 ```
 @author Erin Hima (erinhima@gmail.com)   (13~16 hours)
